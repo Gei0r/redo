@@ -72,9 +72,12 @@
 # Sorry this is so complicated.  I couldn't think of a way to make it
 # simpler :)
 #
-import sys, os, errno, select, fcntl, signal
+import sys, os, errno, select, signal
 from . import env, helpers, logs, state
 from .atoi import atoi
+
+if os.name != 'nt':
+    import fcntl
 
 _toplevel = 0
 _mytokens = 1
@@ -151,6 +154,10 @@ def _timeout(sig, frame):
 # strace.
 def _make_pipe(startfd):
     (a, b) = os.pipe()
+
+    if os.name == 'nt':
+        return (a, b)
+    
     fds = (fcntl.fcntl(a, fcntl.F_DUPFD, startfd),
            fcntl.fcntl(b, fcntl.F_DUPFD, startfd + 1))
     os.close(a)

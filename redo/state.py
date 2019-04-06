@@ -1,8 +1,13 @@
 """Code for manipulating redo's state database."""
-import sys, os, errno, stat, fcntl, sqlite3
+import sys, os, errno, stat, sqlite3
 from . import cycles, env
 from .helpers import unlink, close_on_exec
 from .logs import warn, debug2, debug3
+
+if os.name == 'nt':
+    import msvcrt
+else:
+    import fcntl
 
 SCHEMA_VER = 2
 TIMEOUT = 60
@@ -506,15 +511,25 @@ class Lock(object):
         """Non-blocking try to acquire our lock; returns true if it worked."""
         self.check()
         assert not self.owned
-        try:
-            fcntl.lockf(_lockfile, fcntl.LOCK_EX|fcntl.LOCK_NB, 1, self.fid)
-        except IOError, e:
-            if e.errno in (errno.EAGAIN, errno.EACCES):
-                pass  # someone else has it locked
+        if os.name == 'nt':
+            try:
+                os.lseek(_lockfile, self.fid, os.SEEK_CUR)
+                msvcrt.locking(_lockfile, msvcrt.LK_NBLCK, 1)
+            except OSError:
+                pass
             else:
-                raise
+                self.owned = True
         else:
-            self.owned = True
+            try:
+                fcntl.lockf(_lockfile, fcntl.LOCK_EX|fcntl.LOCK_NB, 1, self.fid)
+            except IOError, e:
+                if e.errno in (errno.EAGAIN, errno.EACCES):
+                    pass  # someone else has it locked
+                else:
+                    raise
+            else:
+                self.owned = True
+                
         return self.owned
 
     def waitlock(self, shared=False):
@@ -526,18 +541,31 @@ class Lock(object):
         """
         self.check()
         assert not self.owned
-        fcntl.lockf(
-            _lockfile,
-            fcntl.LOCK_SH if shared else fcntl.LOCK_EX,
-            1, self.fid)
-        self.owned = True
+        if os.name == 'nt':
+            while not self.owned:
+                try:
+                    os.lseek(_lockfile, self.fid, os.SEEK_CUR)
+                    msvcrt.locking(_lockfile, msvcrt.LK_LOCK, 1)
+                    self.owned = True
+                except OSError:
+                    pass
+        else:
+            fcntl.lockf(
+                _lockfile,
+                fcntl.LOCK_SH if shared else fcntl.LOCK_EX,
+                1, self.fid)
+            self.owned = True
 
     def unlock(self):
         """Release the lock, which we must currently own."""
         if not self.owned:
             raise Exception("can't unlock %r - we don't own it"
                             % self.fid)
-        fcntl.lockf(_lockfile, fcntl.LOCK_UN, 1, self.fid)
+        if os.name == 'nt':
+            os.lseek(_lockfile, self.fid, os.SEEK_CUR)
+            msvcrt.locking(_lockfile, msvcrt.LK_UNLCK, 1)
+        else:
+            fcntl.lockf(_lockfile, fcntl.LOCK_UN, 1, self.fid)
         self.owned = False
 
 

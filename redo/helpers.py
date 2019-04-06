@@ -1,6 +1,8 @@
 """Some helper functions that don't fit anywhere else."""
-import os, errno, fcntl
+import os, errno
 
+if os.name != 'nt':
+    import fcntl
 
 class ImmediateReturn(Exception):
     def __init__(self, rv):
@@ -22,14 +24,23 @@ def unlink(f):
 
 
 def close_on_exec(fd, yes):
-    fl = fcntl.fcntl(fd, fcntl.F_GETFD)
-    fl &= ~fcntl.FD_CLOEXEC
-    if yes:
-        fl |= fcntl.FD_CLOEXEC
-    fcntl.fcntl(fd, fcntl.F_SETFD, fl)
+    if os.name != 'nt':
+        fl = fcntl.fcntl(fd, fcntl.F_GETFD)
+        fl &= ~fcntl.FD_CLOEXEC
+        if yes:
+            fl |= fcntl.FD_CLOEXEC
+            fcntl.fcntl(fd, fcntl.F_SETFD, fl)
+            
 
 
 def fd_exists(fd):
+    if os.name == 'nt':
+        try:
+            os.fstat(fd)
+            return True
+        except OSError:
+            return False
+            
     try:
         fcntl.fcntl(fd, fcntl.F_GETFD)
     except IOError:
