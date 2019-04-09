@@ -513,10 +513,13 @@ class Lock(object):
         assert not self.owned
         if os.name == 'nt':
             try:
-                os.lseek(_lockfile, self.fid, os.SEEK_CUR)
+                os.lseek(_lockfile, self.fid, os.SEEK_SET)
                 msvcrt.locking(_lockfile, msvcrt.LK_NBLCK, 1)
-            except OSError:
-                pass
+            except IOError as e:
+                if e.errno == errno.EACCES:
+                    pass  # lock is owned by another process
+                else:
+                    raise # something unexpected happened
             else:
                 self.owned = True
         else:
@@ -542,13 +545,21 @@ class Lock(object):
         self.check()
         assert not self.owned
         if os.name == 'nt':
+            # msvcrt's "waiting" lock actually only waits for about
+            # 10 seconds, so we do it in a loop
             while not self.owned:
                 try:
-                    os.lseek(_lockfile, self.fid, os.SEEK_CUR)
+                    os.lseek(_lockfile, self.fid, os.SEEK_SET)
                     msvcrt.locking(_lockfile, msvcrt.LK_LOCK, 1)
+                except IOError as e:
+                    if e.errno == errno.EDEADLK:
+                        # msvcrt gave up after 10 tries of 1 s, but we want to
+                        # wait longer (continue the while loop)
+                        pass
+                    else:
+                        raise  # something unexpected happened
+                else:
                     self.owned = True
-                except OSError:
-                    pass
         else:
             fcntl.lockf(
                 _lockfile,
@@ -562,7 +573,7 @@ class Lock(object):
             raise Exception("can't unlock %r - we don't own it"
                             % self.fid)
         if os.name == 'nt':
-            os.lseek(_lockfile, self.fid, os.SEEK_CUR)
+            os.lseek(_lockfile, self.fid, os.SEEK_SET)
             msvcrt.locking(_lockfile, msvcrt.LK_UNLCK, 1)
         else:
             fcntl.lockf(_lockfile, fcntl.LOCK_UN, 1, self.fid)
