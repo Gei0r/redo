@@ -186,18 +186,7 @@ def relpath(t, base):
     if not _cwd:
         _cwd = os.getcwd()
     t = os.path.normpath(_realdirpath(os.path.join(_cwd, t)))
-    base = os.path.normpath(_realdirpath(base))
-    tparts = t.split('/')
-    bparts = base.split('/')
-    for tp, bp in zip(tparts, bparts):
-        if tp != bp:
-            break
-        tparts.pop(0)
-        bparts.pop(0)
-    while bparts:
-        tparts.insert(0, '..')
-        bparts.pop(0)
-    return '/'.join(tparts)
+    return os.path.relpath(t, base)
 
 
 # Return a relative path for t that will work after we do

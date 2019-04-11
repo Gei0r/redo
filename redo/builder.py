@@ -260,7 +260,8 @@ class _BuildJob(object):
         helpers.unlink(self.tmpname)
         ffd, fname = tempfile.mkstemp(prefix='redo.', suffix='.tmp')
         helpers.close_on_exec(ffd, True)
-        os.unlink(fname)
+        if os.name != 'nt':  # unfortunately, this trick doesn't work on win
+            os.unlink(fname)
         self.outfile = os.fdopen(ffd, 'w+')
         # this will run in the dofile's directory, so use only basenames here
         arg1 = basename + ext  # target name (including extension)
@@ -298,6 +299,9 @@ class _BuildJob(object):
                 suffix='.log.tmp',
                 dir=os.path.dirname(lfend))
             os.fdopen(lfd, 'w')
+            if os.name == 'nt':
+                # on windows, rename to an existing file is not silent
+                helpers.unlink(lfend)
             os.rename(lfname, lfend)
         dof = state.File(name=os.path.join(dodir, dofile))
         dof.set_static()
