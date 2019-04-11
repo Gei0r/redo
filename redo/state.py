@@ -591,6 +591,12 @@ def detect_broken_locks():
 
     Returns true if broken, false otherwise.
     """
+
+    if os.name == 'nt':
+        # on native window, we're confident that locks are working.
+        # no need to check.
+        return False
+    
     pl = Lock(0)
     # We wait for the lock here, just in case others are doing
     # this test at the same time.
