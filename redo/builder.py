@@ -111,7 +111,6 @@ def windows_start_stdin_log_reader(status, details, pretty, color,
     global stderr_fd        # we will store our current stderr here
 
     r, w = os.pipe()    # main pipe to redo-log
-    ar, aw = os.pipe()  # ack pipe from redo-log --ack-fd
     sys.stdout.flush()
     sys.stderr.flush()
 
@@ -122,12 +121,12 @@ def windows_start_stdin_log_reader(status, details, pretty, color,
         sys.executable,  # = python interpreter
         exedir + '/redo-log',
         '--recursive', '--follow',
-        '--ack-fd', str(aw),
         ('--status' if status and os.isatty(2) else '--no-status'),
         ('--details' if details else '--no-details'),
         ('--pretty' if pretty else '--no-pretty'),
         ('--debug-locks' if debug_locks else '--no-debug-locks'),
         ('--debug-pids' if debug_pids else '--no-debug-pids'),
+        '--no-color', '-'
     ]
 
     try:
@@ -139,16 +138,8 @@ def windows_start_stdin_log_reader(status, details, pretty, color,
 
     # child process has started, now we're in the parent.
     os.close(r)
-    os.close(aw)
-    b = os.read(ar, 8)
-    if not b:
-        # subprocess died without sending us anything: that's bad.
-        err('failed to start redo-log subprocess; cannot continue.\n')
-        os._exit(99)
-    assert b == 'REDO-OK\n'
     # now we know the subproc is running and will report our errors
     # to stderr, so it's okay to lose our own stderr.
-    os.close(ar)
     os.dup2(w, 1)   # send our own stdout to child's stdin
     os.dup2(w, 2)   # send our own stderr to child's stdin
     os.close(w)

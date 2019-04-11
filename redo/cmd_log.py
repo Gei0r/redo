@@ -1,8 +1,10 @@
 """redo-log: print past build logs. """
-import errno, fcntl, os, re, struct, sys, time
-import termios
+import errno, os, re, struct, sys, time
 from .atoi import atoi
 from . import env, logs, options, state
+
+if os.name != 'nt':
+    import fcntl, termios
 
 optspec = """
 redo-log [options...] [targets...]
@@ -39,6 +41,9 @@ REDO_LINE_RE = re.compile(r'^@@REDO:([^@]+)@@ (.*)\n$')
 
 
 def _tty_width():
+    if os.name == 'nt':
+        return 70
+
     s = struct.pack("HHHH", 0, 0, 0, 0)
     try:
         s = fcntl.ioctl(sys.stderr.fileno(), termios.TIOCGWINSZ, s)
