@@ -22,7 +22,7 @@ log_reader_pid = None
 
 
 def close_stdin():
-    f = open('/dev/null')
+    f = open(os.devnull)
     os.dup2(f.fileno(), 0)
     f.close()
 
