@@ -185,8 +185,12 @@ def relpath(t, base):
     global _cwd
     if not _cwd:
         _cwd = os.getcwd()
+
     t = os.path.normpath(_realdirpath(os.path.join(_cwd, t)))
-    return os.path.relpath(t, base)
+    try:
+        return os.path.relpath(t, base)
+    except ValueError:
+        return t
 
 
 # Return a relative path for t that will work after we do

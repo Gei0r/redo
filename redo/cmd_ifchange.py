@@ -21,6 +21,13 @@ def main():
     rv = 202
     try:
         targets = sys.argv[1:]
+
+        if os.name == 'nt':
+            # some commands (e.g. gcc -MD) produce \r in filenames, filter that
+            # stuff out
+            targets = map(lambda t: t.replace('\r', ''), targets)
+            targets = list(filter(lambda t: t != '', targets))
+
         state.init(targets)
         if env.is_toplevel and not targets:
             targets = ['all']

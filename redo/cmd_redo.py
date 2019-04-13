@@ -51,6 +51,12 @@ def main():
 
     targets = extra
 
+    if os.name == 'nt':
+        # some commands (e.g. gcc -MD) produce \r in filenames, filter that
+        # stuff out
+        targets = map(lambda t: t.replace('\r', ''), targets)
+        targets = list(filter(lambda t: t != '', targets))
+
     if opt.version:
         from . import version
         print version.TAG
