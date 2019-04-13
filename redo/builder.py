@@ -1,10 +1,13 @@
 """Code for parallel-building a set of targets, if needed."""
 import errno, os, stat, signal, sys, tempfile, time
-from . import cycles, env, helpers, jobserver, logs, paths, state
+from . import cycles, env, helpers, logs, paths, state
 from .logs import debug2, err, warn, meta
 
 if os.name == 'nt':
     import subprocess
+    import jobserver_win as jobserver
+else:
+    import jobserver
 
 
 def _nice(t):
@@ -309,7 +312,10 @@ class _BuildJob(object):
         state.commit()
         meta('do', state.target_relpath(t))
         def call_subproc():
-            self._subproc(dodir, basename, ext, argv)
+            if os.name == 'nt':
+                return self._subproc_win(dodir, basename, ext, argv)
+            else:
+                self._subproc(dodir, basename, ext, argv)
         def call_exited(t, rv):
             self._subproc_exited(t, rv, argv)
         jobserver.start(t, call_subproc, call_exited)
@@ -405,6 +411,55 @@ class _BuildJob(object):
         assert 0
         # returns only if there's an exception
 
+    def _subproc_win(self, dodir, basename, ext, argv):
+        """Like _subproc, but for windows. *Does* return.
+
+        Doesn't call execve, because that's not available for windows.
+        So instead, this returns a dictionary of things to set in the child
+        (argv, environment, stdout/err pipes,...)
+        """
+        environ = {}
+        assert state.is_flushed()
+        newp = os.path.realpath(dodir)
+        environ['REDO_PWD'] = state.relpath(newp, env.v.STARTDIR)
+        environ['REDO_TARGET'] = basename + ext
+        environ['REDO_DEPTH'] = env.v.DEPTH + '  '
+        if env.v.XTRACE == 1:
+            environ['REDO_XTRACE'] = '0'
+        if env.v.VERBOSE == 1:
+            environ['REDO_VERBOSE'] = '0'
+        cycles.add(self.lock.fid)
+        if dodir:
+            cwd = dodir
+        stdout = self.outfile.fileno()
+        if env.v.LOG:
+            cur_inode = str(os.fstat(2).st_ino)
+            if not env.v.LOG_INODE or cur_inode == env.v.LOG_INODE:
+                # .do script has *not* redirected stderr, which means we're
+                # using redo-log's log saving mode.  That means subprocs
+                # should be logged to their own file.  If the .do script
+                # *does* redirect stderr, that redirection should be inherited
+                # by subprocs, so we'd do nothing.
+                logf = open(state.logname(self.sf.id), 'w')
+                new_inode = os.fstat(logf.fileno()).st_ino
+                environ['REDO_LOG'] = '1'  # .do files can check this
+                environ['REDO_LOG_INODE'] = str(new_inode)
+                stderr = logf
+        else:
+            if 'REDO_LOG_INODE' in os.environ:
+                del environ['REDO_LOG_INODE']
+            environ['REDO_LOG'] = ''
+        if env.v.VERBOSE or env.v.XTRACE:
+            logs.write('* %s' % ' '.join(argv).replace('\n', ' '))
+
+        return {
+            'argv': argv,
+            'env': environ,
+            'cwd': cwd,
+            'stdout': stdout,
+            'stderr': stderr
+        }
+
     def _subproc_exited(self, t, rv, argv):
         """Called by the jobserver when our subtask exits.
 
@@ -475,6 +530,9 @@ class _BuildJob(object):
                 # therefore tmpfile now exists.
                 try:
                     # Atomically replace the target file
+                    if os.name == 'nt':
+                        # on windows, rename to an existing file is not silent
+                        helpers.unlink(t)
                     os.rename(self.tmpname, t)
                 except OSError, e:
                     # This could happen for, eg. a permissions error on
