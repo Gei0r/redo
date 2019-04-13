@@ -15,9 +15,14 @@
 # limitations under the License.
 #
 import sys, os, traceback
-from . import builder, env, helpers, jobserver, logs, options, state
+from . import builder, env, helpers, logs, options, state
 from .atoi import atoi
 from .logs import warn, err
+
+if os.name == 'nt':
+    import jobserver_win as jobserver
+else:
+    import jobserver
 
 optspec = """
 redo [targets...]

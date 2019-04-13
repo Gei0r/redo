@@ -418,7 +418,7 @@ class _BuildJob(object):
         So instead, this returns a dictionary of things to set in the child
         (argv, environment, stdout/err pipes,...)
         """
-        environ = {}
+        environ = os.environ.copy()
         assert state.is_flushed()
         newp = os.path.realpath(dodir)
         environ['REDO_PWD'] = state.relpath(newp, env.v.STARTDIR)

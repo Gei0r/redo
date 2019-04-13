@@ -1,8 +1,12 @@
 """redo-ifchange: build the given targets if they have changed."""
 import os, sys, traceback
-from . import env, builder, deps, helpers, jobserver, logs, state
+from . import env, builder, deps, helpers, logs, state
 from .logs import debug2, err
 
+if os.name == 'nt':
+    import jobserver_win as jobserver
+else:
+    import jobserver
 
 def should_build(t):
     f = state.File(name=t)

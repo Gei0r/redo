@@ -26,7 +26,7 @@ def running():
 def wait_all():
     pass
 
-def for_return_tokens():
+def force_return_tokens():
     pass
 
 def start(reason, jobfunc, donefunc):
