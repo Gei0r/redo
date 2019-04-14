@@ -68,9 +68,11 @@ case $target in
 	test)
 		# Be intentionally confusing about paths, to try to
 		# detect bugs.
-		rm -f 't/symlink path'
-		ln -s .. 't/symlink path' || die 'failed to make test dir.'
-		cd 't/symlink path/t/symlink path'
+		if [[ `uname -s` != MSYS_NT* ]] ; then
+			rm -f 't/symlink path'
+			ln -s .. 't/symlink path' || die 'failed to make test dir.'
+			cd 't/symlink path/t/symlink path'
+		fi
 		# First test minimal/do
 		build
 		# Add ./redo to PATH so we launch with redo/sh as the shell

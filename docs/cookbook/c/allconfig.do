@@ -1,4 +1,12 @@
-redo-ifchange arches configure redoconf/utils.sh
+redo-ifchange arches configure
+
+if [[ `uname -s` == MSYS_NT* && ! -d redoconf ]]; then
+    # don't have symlinks on windows, need to copy the dir
+    rm redoconf
+    cp -R ../../../redoconf .
+fi
+
+redo-ifchange redoconf/utils.sh
 
 config() {
 	local dir="$1" arch="$2"

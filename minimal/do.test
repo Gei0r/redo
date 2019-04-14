@@ -133,12 +133,16 @@ check ".." _normpath .. "$x"
 SECTION _realpath
 rm -rf y
 mkdir y
-ln -s . y/x
+
+# no symlinks on windows, can't check them.
+if [[ `uname -s` != MSYS_NT* ]] ; then
+    ln -s . y/x
+    check "foo"  _realpath "y/x/x/x/x/x/../foo" "$PWD"
+    check "$(/bin/pwd)/foo"  _realpath "$PWD/y/x/x/x/x/x/../foo" "$PWD"
+    check "foo/blam"  _realpath "y/x/x/x/x/x/../foo/spam/../blam" "$PWD"
+    check "$(/bin/pwd)/foo/blam"  _realpath "$PWD/y/x/x/../foo/spam/../blam" "$PWD"
+fi
 check "/usr/__does_not/b"  _realpath "/usr/__does_not/a/../b" "$x"
-check "foo"  _realpath "y/x/x/x/x/x/../foo" "$PWD"
-check "$(/bin/pwd)/foo"  _realpath "$PWD/y/x/x/x/x/x/../foo" "$PWD"
-check "foo/blam"  _realpath "y/x/x/x/x/x/../foo/spam/../blam" "$PWD"
-check "$(/bin/pwd)/foo/blam"  _realpath "$PWD/y/x/x/../foo/spam/../blam" "$PWD"
 
 
 SECTION _find_dofile
