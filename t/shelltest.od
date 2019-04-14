@@ -515,7 +515,14 @@ x=$(printf "a%-5sc" "b")
 
 # Make sure cd supports -L and -P options properly
 rm -f shlink
-ln -s . shlink
+if [[ `uname -s` == MSYS_NT* ]]; then
+    # For some reason, ln -s doesn't seem to work on native windows with '.'
+    # Use the native mklink command instead.
+    # The rest (cd -L, cd -P) must work with this link then.
+    cmd //c mklink //D shlink .
+else
+    ln -s . shlink
+fi
 (quiet_stderr cd -L shlink/shlink/shlink/../shlink) || fail 120
 (quiet_stderr cd -P shlink/shlink/shlink/../shlink) && fail 121
 x1=$(cd shlink && basename "$(pwd -P)")

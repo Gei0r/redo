@@ -11,7 +11,7 @@ for iter in 10 20; do
 		# The following 'ln' doesn't work on windows ("Permission denied"), even
 		# if winsymlinks:nativestrict is activated.
 		# So we use the native command for that.
-		cmd //c mklink //D y\\x . > NUL
+		cmd //c mklink //D y\\x . > /dev/null
 	else
 		ln -s . y/x
 	fi
@@ -21,7 +21,7 @@ for iter in 10 20; do
 		cd y/x/x/x/x/x
 		IFS=$(printf '\n')
 		redo-ifchange static x/x/x/static $PWD/static \
-			$(/bin/pwd)/static /etc/passwd
+			$(/bin/pwd)/static /etc/fstab
 		redo-ifchange $PWD/../static 2>/dev/null && exit 35
 		redo-ifchange 1.dyn x/x/x/2.dyn $PWD/3.dyn \
 			 $PWD/../4.dyn $(/bin/pwd)/5.dyn
