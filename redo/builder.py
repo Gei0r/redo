@@ -281,7 +281,7 @@ class _BuildJob(object):
         if env.v.XTRACE:
             argv[1] += 'x'
         firstline = open(os.path.join(dodir, dofile)).readline().strip()
-        if firstline.startswith('#!/'):
+        if firstline.startswith('#!'):
             argv[0:2] = firstline[2:].split(' ')
         # make sure to create the logfile *before* writing the meta() about
         # it.  that way redo-log won't trace into an obsolete logfile.
