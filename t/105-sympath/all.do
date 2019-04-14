@@ -7,7 +7,14 @@ for iter in 10 20; do
 	rm -f x *.dyn static
 	mkdir y
 	: >y/static
-	ln -s . y/x
+	if [[ `uname -s` == MSYS_NT* ]]; then
+		# The following 'ln' doesn't work on windows ("Permission denied"), even
+		# if winsymlinks:nativestrict is activated.
+		# So we use the native command for that.
+		cmd //c mklink //D y\\x . > NUL
+	else
+		ln -s . y/x
+	fi
 	../flush-cache
 
 	(

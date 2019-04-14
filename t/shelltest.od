@@ -516,14 +516,12 @@ x=$(printf "a%-5sc" "b")
 # Make sure cd supports -L and -P options properly
 rm -f shlink
 ln -s . shlink
-if [[ `uname -s` != MSYS_NT* ]]; then
-    (quiet_stderr cd -L shlink/shlink/shlink/../shlink) || fail 120
-    (quiet_stderr cd -P shlink/shlink/shlink/../shlink) && fail 121
-    x1=$(cd shlink && basename "$(pwd -P)")
-    x2=$(cd shlink && basename "$(pwd -L)")
-    [ "$x1" = "t" ] || fail 122
-    [ "$x2" = "shlink" ] || fail 123
-fi
+(quiet_stderr cd -L shlink/shlink/shlink/../shlink) || fail 120
+(quiet_stderr cd -P shlink/shlink/shlink/../shlink) && fail 121
+x1=$(cd shlink && basename "$(pwd -P)")
+x2=$(cd shlink && basename "$(pwd -L)")
+[ "$x1" = "t" ] || fail 122
+[ "$x2" = "shlink" ] || fail 123
 
 # Reported by Wayne Scott on FreeBSD 7.0 (ancient). Apparently the sh (or
 # bash?) there prints "$3: ambiguous redirect" if you redirect to it without
