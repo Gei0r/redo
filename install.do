@@ -39,5 +39,5 @@ done
 cp -R redo/sh "$LIBDIR/sh"
 
 # binaries
-bins=$(ls bin/redo* | grep '^bin/redo[-a-z]*$')
+bins=$(ls bin/redo* | grep '^bin/redo[-a-z]*\(\.bat\)\?$')
 "$INSTALL" -m 0755 $bins "$BINDIR/"
