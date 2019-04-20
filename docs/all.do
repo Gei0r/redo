@@ -1,4 +1,5 @@
 redo-ifchange doc.list
+cat doc.list >2
 sed 's/\.md/.1/' <doc.list |
 xargs redo-ifchange
 

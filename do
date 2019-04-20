@@ -50,6 +50,7 @@ fi
 
 build() {
 	./minimal/do -c bin/all || die "failed to compile redo."
+    PATH=$PWD/bin:$PATH
 	bin/redo bin/all || die "redo failed self test."
 }
 
