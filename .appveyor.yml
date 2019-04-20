@@ -1,0 +1,10 @@
+version: 1.0.{build}
+image: Visual Studio 2017
+build_script:
+- sh: >-
+    echo This is the build script
+
+    bash do build
+artifacts:
+- path: inst/usr
+  name: Built files for windows
