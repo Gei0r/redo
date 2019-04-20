@@ -347,12 +347,17 @@ class _BuildJob(object):
         meta('check', state.target_relpath(self.t))
         state.commit()
         def subtask():
-            os.environ['REDO_DEPTH'] = env.v.DEPTH + '  '
-            # python ignores SIGPIPE
-            signal.signal(signal.SIGPIPE, signal.SIG_DFL)
-            os.execvp(argv[0], argv)
-            assert 0
-            # returns only if there's an exception
+            if os.name == 'nt':
+                environ = os.environ.copy()
+                environ['REDO_DEPTH'] = env.v.DEPTH + '  '
+                return {'argv': argv, 'env': environ}
+            else:
+                os.environ['REDO_DEPTH'] = env.v.DEPTH + '  '
+                # python ignores SIGPIPE
+                signal.signal(signal.SIGPIPE, signal.SIG_DFL)
+                os.execvp(argv[0], argv)
+                assert 0
+                # returns only if there's an exception
         def job_exited(t, rv):
             return self._finalize(rv)
         jobserver.start(self.t, jobfunc=subtask, donefunc=job_exited)
