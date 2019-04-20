@@ -133,14 +133,17 @@ check ".." _normpath .. "$x"
 SECTION _realpath
 rm -rf y
 mkdir y
-if [[ `uname -s` == MSYS_NT* ]]; then
-    # The following 'ln' doesn't work on windows ("Permission denied"), even if
-    # winsymlinks:nativestrict is activated.
-    # So we use the native command for that.
-    cmd //c mklink //D y\\x . > /dev/null
-else
-    ln -s . y/x
-fi
+case `uname -s` in
+    MSYS_NT*|CYGWIN_NT*)
+        # The following 'ln' doesn't work on windows ("Permission denied"), even if
+        # winsymlinks:nativestrict is activated.
+        # So we use the native command for that.
+        cmd //c mklink //D y\\x . > /dev/null
+        ;;
+    *)
+        ln -s . y/x
+esac
+
 check "/usr/__does_not/b"  _realpath "/usr/__does_not/a/../b" "$x"
 check "foo"  _realpath "y/x/x/x/x/x/../foo" "$PWD"
 check "$(/bin/pwd)/foo"  _realpath "$PWD/y/x/x/x/x/x/../foo" "$PWD"

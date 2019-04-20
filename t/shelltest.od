@@ -515,20 +515,28 @@ x=$(printf "a%-5sc" "b")
 
 # Make sure cd supports -L and -P options properly
 rm -f shlink
-if [[ `uname -s` == MSYS_NT* ]]; then
-    # For some reason, ln -s doesn't seem to work on native windows with '.'
-    # Use the native mklink command instead.
-    # The rest (cd -L, cd -P) must work with this link then.
-    cmd //c mklink //D shlink .
-else
-    ln -s . shlink
-fi
-(quiet_stderr cd -L shlink/shlink/shlink/../shlink) || fail 120
-(quiet_stderr cd -P shlink/shlink/shlink/../shlink) && fail 121
-x1=$(cd shlink && basename "$(pwd -P)")
-x2=$(cd shlink && basename "$(pwd -L)")
-[ "$x1" = "t" ] || fail 122
-[ "$x2" = "shlink" ] || fail 123
+case `uname -s` in
+    MSYS_NT*|CYGWIN_NT*)
+        # On windows, symlinks are not supported out of the box.
+        # Since we don't want to require enabling symlinks to build redo, we
+        # don't perform these tests on windows.
+        #
+        # If symlinks are enabled, the tests should work, but with one
+        # important caveat:
+        # For some reason, ln -s doesn't work on native windows with '.'.
+        # The native mklink command has to be used instead.
+        # The rest (cd -L, cd -P) must work with this link then.
+        # cmd //c mklink //D shlink .
+        ;;
+    *)
+        ln -s . shlink
+        (quiet_stderr cd -L shlink/shlink/shlink/../shlink) || fail 120
+        (quiet_stderr cd -P shlink/shlink/shlink/../shlink) && fail 121
+        x1=$(cd shlink && basename "$(pwd -P)")
+        x2=$(cd shlink && basename "$(pwd -L)")
+        [ "$x1" = "t" ] || fail 122
+        [ "$x2" = "shlink" ] || fail 123
+esac
 
 # Reported by Wayne Scott on FreeBSD 7.0 (ancient). Apparently the sh (or
 # bash?) there prints "$3: ambiguous redirect" if you redirect to it without
