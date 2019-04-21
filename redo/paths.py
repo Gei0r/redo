@@ -28,7 +28,7 @@ def possible_do_files(t):
     # for building my project in *all* cases.
     t = os.path.normpath(os.path.join(env.v.BASE, t))
     dirname, filename = os.path.split(t)
-    dirbits = dirname.split('/')
+    dirbits = dirname.split(os.path.sep)
     # since t is an absolute path, dirbits[0] is always '', so we don't
     # need to count all the way down to i=0.
     for i in range(len(dirbits), 0, -1):
