@@ -12,6 +12,11 @@ You can install the prerequisites like this:
 ```
 (If you have install instructions for other OSes, please add them here :))
 
+## Windows
+
+Support for Microsoft Windows is experimental.
+For instructions on how to build and use `redo` on Windows, see the
+[dedicated page](WindowsSupport.md).
 
 # Clone, compile, and test redo
 
