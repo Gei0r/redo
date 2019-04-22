@@ -1,5 +1,13 @@
 exec >&2
-redo-ifchange ../redo/version/all ../redo/py ../redo/sh list
+redo-ifchange ../redo/version/all ../redo/py list
+case `uname -s` in
+    MSYS_NT*|CYGWIN_NT*)
+        redo-ifchange ../redo/sh.exe
+        ;;
+    *)
+        redo-ifchange ../redo/sh
+esac
+
 xargs redo-ifchange <list
 
 case `uname -s` in
