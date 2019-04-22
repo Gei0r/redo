@@ -4,13 +4,14 @@ environment:
   DESTDIR: inst
   MSYS: winsymlinks:nativestrict
   SHELL_CANDIDATES: busybox
+  PYTHON_CANDIDATES: /c/Python27/python
 build_script:
 - cmd: >-
-    appveyor DownloadFile https://frippery.org/files/busybox/busybox.exe -FileName ../busybox.exe
+    appveyor DownloadFile https://frippery.org/files/busybox/busybox.exe
 
-    set PATH=C:\msys64\usr\bin;%PATH%;%cd%\..
+    set PATH=C:\msys64\usr\bin;%PATH%;%cd%
 
-    C:\msys64\usr\bin\bash do install
+    bash do install
 artifacts:
 - path: inst/usr
   name: Built files for windows

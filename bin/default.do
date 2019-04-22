@@ -20,10 +20,12 @@ case $1 in
 		cat >$3 <<-EOF
 			#!$py
 			import sys, os;
-			exe = os.path.realpath(os.path.abspath(sys.argv[0]))
+			exe = os.path.realpath(os.path.abspath(__file__))
 			exedir = os.path.dirname(exe)
 			sys.path.insert(0, os.path.join(exedir, '../lib'))
 			sys.path.insert(0, os.path.join(exedir, '..'))
+			print "this is " + exe + " argv=" + ", ".join(sys.argv) + "path= " + ", ".join(sys.path)
+			print "py interpreter: $py " + sys.executable
 			import redo.title
 			import redo.cmd_$cmd
 			redo.title.auto()

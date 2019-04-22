@@ -1,5 +1,8 @@
 exec >&2
-for py in python2.7 python2 python; do
+
+: ${PYTHON_CANDIDATES:=python2.7 python2 python}
+
+for py in $PYTHON_CANDIDATES; do
 	echo "Trying: $py"
 	set +e
 	cmd=$(command -v "$py")
@@ -10,6 +13,7 @@ for py in python2.7 python2 python; do
 	# function) here, to rule out any python3 interpreters
 	out=$($cmd -c 'print "success"' 2>/dev/null) || true
 	if [ "$out" = "success" ]; then
+		echo "will use $cmd"
 		echo $cmd >$3
 		exit 0
 	fi
