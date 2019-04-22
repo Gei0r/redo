@@ -4,6 +4,12 @@ if [ "$1,$2" != "all,all" ]; then
 fi
 
 # Do this first, to ensure we're using a good shell
-redo-ifchange redo/sh
+case `uname -s` in
+    MSYS_NT*|CYGWIN_NT*)
+        redo-ifchange redo/sh.exe
+        ;;
+    *)
+        redo-ifchange redo/sh
+esac
 
 redo-ifchange bin/all docs/all
