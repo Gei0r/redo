@@ -1,10 +1,9 @@
 exec >&2
 for py in python2.7 python2 python; do
 	echo "Trying: $py"
-	# The "||" and the following echo are required on some windows
-	# environments, don't know why.
-	cmd=$(command -v "$py") || 
-	echo "$cmd" > /dev/null
+	cmd=$(command -v "$py") ||
+
+	cmd=$(echo "$cmd" | sed "s/\\\\/\\//g")  # replace backslash
 	# intentionally using the 'print statement' (as opposed to print
 	# function) here, to rule out any python3 interpreters
 	out=$($cmd -c 'print "success"' 2>/dev/null) || true

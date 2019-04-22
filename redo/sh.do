@@ -14,6 +14,7 @@ WARN=
 : ${SHELL_CANDIDATES:=dash /usr/xpg4/bin/sh ash posh lksh mksh ksh ksh88 \
                       ksh93 pdksh zsh bash busybox /bin/sh}
 
+echo "Candidates: $SHELL_CANDIDATES"
 
 for sh in $SHELL_CANDIDATES ; do
 	printf " %-22s" "$sh..."

@@ -516,7 +516,7 @@ x=$(printf "a%-5sc" "b")
 # Make sure cd supports -L and -P options properly
 rm -f shlink
 case `uname -s` in
-    MSYS_NT*|CYGWIN_NT*)
+    MSYS_NT*|CYGWIN_NT*|Windows_NT*)
         # On windows, symlinks are not supported out of the box.
         # Since we don't want to require enabling symlinks to build redo, we
         # don't perform these tests on windows.

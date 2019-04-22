@@ -13,7 +13,9 @@ if [ "$DESTDIR" = "NONE" ]; then
 	exit 99
 fi
 
-redo-ifchange all redo/whichpython
+redo-ifchange all
+rm -f redo/whichpython
+redo redo/whichpython
 read py <redo/whichpython
 
 echo "Installing to: $DESTDIR$PREFIX"
@@ -36,7 +38,19 @@ done
 
 # It's important for the file to actually be named 'sh'.  Some shells (like
 # bash and zsh) only go into POSIX-compatible mode if they have that name.
-cp -R redo/sh "$LIBDIR/sh"
+case `uname -s` in
+    MSYS_NT*|CYGWIN_NT*)
+        cp -R redo/sh.exe "$LIBDIR/sh.exe"
+        ;;
+    Windows_NT*)  # busybox-w32
+        # busybox-w32 doesn't support copying symlinks, so we copy the
+        # symlinks' target (which in this case will be the busybox executable)
+        cp `readlink -f redo/sh.exe` "$LIBDIR/sh.exe"
+        ;;
+    *)
+        cp -R redo/sh "$LIBDIR/sh"
+esac
+
 
 # binaries
 bins=$(ls bin/redo* | grep '^bin/redo[-a-z]*\(\.bat\)\?$')

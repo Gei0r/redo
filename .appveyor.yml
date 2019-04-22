@@ -3,9 +3,14 @@ image: Visual Studio 2017
 environment:
   DESTDIR: inst
   MSYS: winsymlinks:nativestrict
-  SHELL_CANDIDATES: bash
+  SHELL_CANDIDATES: busybox
 build_script:
-- cmd: bash do install
+- cmd: >-
+    appveyor DownloadFile https://frippery.org/files/busybox/busybox.exe
+
+    set PATH=%PATH%;%cd%
+
+    bash do install
 artifacts:
 - path: inst/usr
   name: Built files for windows
