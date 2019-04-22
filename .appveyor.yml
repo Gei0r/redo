@@ -1,10 +1,11 @@
 version: 1.0.{build}
 image: Visual Studio 2017
+environment:
+  DESTDIR: inst
+  MSYS: winsymlinks:nativestrict
+  SHELL_CANDIDATES: bash
 build_script:
-- sh: >-
-    echo This is the build script
-
-    bash do build
+- cmd: bash do install
 artifacts:
 - path: inst/usr
   name: Built files for windows
