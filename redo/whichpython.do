@@ -1,7 +1,9 @@
 exec >&2
 for py in python2.7 python2 python; do
 	echo "Trying: $py"
-	cmd=$(command -v "$py") ||
+	set +e
+	cmd=$(command -v "$py")
+	set -e
 
 	cmd=$(echo "$cmd" | sed "s/\\\\/\\//g")  # replace backslash
 	# intentionally using the 'print statement' (as opposed to print

@@ -19,20 +19,28 @@ echo "Candidates: $SHELL_CANDIDATES"
 for sh in $SHELL_CANDIDATES ; do
 	printf " %-22s" "$sh..."
 	FOUND=`which $sh 2>/dev/null` || { echo "missing"; continue; }
-	
+
 	# It's important for the file to actually be named 'sh'.  Some
 	# shells (like bash and zsh) only go into POSIX-compatible mode if
 	# they have that name.  If they're not in POSIX-compatible mode,
 	# they'll fail the test.
-	rm -f $1.new/sh
-	ln -s $FOUND $1.new/sh
+	case `uname -s` in
+		MSYS_NT*|CYGWIN_NT*|Windows_NT*)
+			# Some windows environments need the .exe suffix
+			rm -f $1.new/sh.exe
+			ln -s $FOUND $1.new/sh.exe
+			;;
+		*)
+			rm -f $1.new/sh
+			ln -s $FOUND $1.new/sh
+	esac
 	SH=$PWD/$1.new/sh
-	
+
 	set +e
 	( cd ../t && "$SH" shelltest.od ) >shelltest.tmp 2>&1
 	RV=$?
 	set -e
-	
+
 	msgs=
 	crash=
 	while read line; do
@@ -49,7 +57,7 @@ for sh in $SHELL_CANDIDATES ; do
 	msgs=${msgs# }
 	crash=${crash##*:}
 	crash=${crash# }
-	
+
 	case $RV in
 		40) echo "ok $msgs"; [ -n "$GOOD" ] || GOOD=$FOUND ;;
 		41) echo "failed    $msgs" ;;

@@ -6,11 +6,11 @@ environment:
   SHELL_CANDIDATES: busybox
 build_script:
 - cmd: >-
-    appveyor DownloadFile https://frippery.org/files/busybox/busybox.exe
+    appveyor DownloadFile https://frippery.org/files/busybox/busybox.exe -FileName ../busybox.exe
 
-    set PATH=%PATH%;%cd%
+    set PATH=C:\msys64\usr\bin;%PATH%;%cd%\..
 
-    bash do install
+    C:\msys64\usr\bin\bash do install
 artifacts:
 - path: inst/usr
   name: Built files for windows
