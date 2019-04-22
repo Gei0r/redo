@@ -62,6 +62,8 @@ if [ -n "$GOOD" ]; then
 	ln -s $GOOD $3
 elif [ -n "$WARN" ]; then
 	echo "Selected mostly good shell: $WARN"
+    echo ln -s $WARN $3
+    ls -l
 	ln -s $WARN $3
 else
 	echo "No good shells found!  Maybe install dash, bash, or zsh."
