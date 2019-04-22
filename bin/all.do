@@ -1,5 +1,6 @@
 exec >&2
 redo-ifchange ../redo/version/all ../redo/py list
+uname -s
 case `uname -s` in
     MSYS_NT*|CYGWIN_NT*)
         redo-ifchange ../redo/sh.exe

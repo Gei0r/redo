@@ -1,6 +1,9 @@
 exec >&2
 redo-ifchange ../t/shelltest.od
 
+echo redo shell!!
+uname -s
+
 rm -rf $1.new
 mkdir $1.new
 
