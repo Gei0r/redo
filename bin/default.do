@@ -1,5 +1,23 @@
 exec >&2
 
+case `uname -s` in
+	MSYS_NT*|CYGWIN_NT*|Windows_NT*)
+		read -d '' fixwinpath <<-EOF || true
+
+			# Some python version on windows (e.g. msys64/usr/bin/python2.7) think they
+			# run on posix, which means they work with unix-style paths (/c/windows/...).
+			# However, a shell might pass argv[0] windows-style (C:\windows\...), which
+			# would completely confuse python.
+			# So we fix the path here. We could use the cygpath tool, but this is faster
+			if os.name == 'posix' and len(sys.argv[0]) >= 3 and sys.argv[0][1:3] == ':\\':
+			    sys.argv[0] = "/" + sys.argv[0][0] + sys.argv[0][2:].replace("\\", "/")
+
+		EOF
+        ;;
+    *)
+        fixwinpath=""
+esac
+
 case $1 in
 	redo-sh)
 		redo-ifchange ../redo/sh
@@ -20,6 +38,7 @@ case $1 in
 		cat >$3 <<-EOF
 			#!$py
 			import sys, os;
+			$fixwinpath
 			exe = os.path.realpath(os.path.abspath(sys.argv[0]))
 			exedir = os.path.dirname(exe)
 			sys.path.insert(0, os.path.join(exedir, '../lib'))

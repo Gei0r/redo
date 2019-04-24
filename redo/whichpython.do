@@ -1,5 +1,8 @@
 exec >&2
-for py in python2.7 python2 python; do
+
+: ${PYTHON_CANDIDATES:=python2.7 python2 python}
+
+for py in $PYTHON_CANDIDATES; do
 	echo "Trying: $py"
 	set +e
 	cmd=$(command -v "$py")

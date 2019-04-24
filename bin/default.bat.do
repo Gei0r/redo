@@ -1,6 +1,17 @@
+redo-ifchange ../redo/whichpython
+read py <../redo/whichpython
+py=$(cygpath -w $py)
 cat >$3 <<-EOF
 	@echo off
-	rem We need python version 2. Try to find a matching interpreter...
+	rem redo was built using $py, so we check this python version first:
+	if exist $py (
+	    rem The python version at build time is still present, us it:
+	    $py %~dp0/$2 %*
+	    exit /b
+	)
+
+	rem $py is not available. Try other 'python' commands.
+
 	where python2 >NUL 2>&1
 	if ERRORLEVEL 1 (
 	    rem python2 is not in path, try "python"
