@@ -9,9 +9,13 @@ case `uname -s` in
 			# However, a shell might pass argv[0] windows-style (C:\windows\...), which
 			# would completely confuse python.
 			# So we fix the path here. We could use the cygpath tool, but this is faster
-			if os.name == 'posix' and len(sys.argv[0]) >= 3 and sys.argv[0][1:3] == ':\\':
-			    sys.argv[0] = "/" + sys.argv[0][0] + sys.argv[0][2:].replace("\\", "/")
-
+			print "name: " + os.name
+			print "argv: " + " ".join(sys.argv)
+			print "len: " + str(len(sys.argv[0])) + "  -> " + sys.argv[0][1:3]
+			if os.name == 'posix' and len(sys.argv[0]) >= 3 and sys.argv[0][1:3] == ':\\\\\\\':
+			    print "fix sys.argv!"
+			    sys.argv[0] = "/" + sys.argv[0][0] + sys.argv[0][2:].replace("\\\\\\\", "/")
+			print "argv after: " + " ".join(sys.argv)
 		EOF
         ;;
     *)
@@ -43,6 +47,7 @@ case $1 in
 			exedir = os.path.dirname(exe)
 			sys.path.insert(0, os.path.join(exedir, '../lib'))
 			sys.path.insert(0, os.path.join(exedir, '..'))
+			print ", ".join(sys.path)
 			import redo.title
 			import redo.cmd_$cmd
 			redo.title.auto()
