@@ -14,12 +14,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import sys, os, traceback
+import sys, os, traceback, platform
 from . import builder, env, helpers, logs, options, state
 from .atoi import atoi
 from .logs import warn, err
 
-if os.name == 'nt':
+if os.name == 'nt' or platform.uname()[0].startswith("MSYS"):
     import jobserver_win as jobserver
 else:
     import jobserver

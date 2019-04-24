@@ -1,9 +1,9 @@
 """Code for parallel-building a set of targets, if needed."""
-import errno, os, stat, signal, sys, tempfile, time
+import errno, os, stat, signal, sys, tempfile, time, platform
 from . import cycles, env, helpers, logs, paths, state
 from .logs import debug2, err, warn, meta
 
-if os.name == 'nt':
+if os.name == 'nt' or platform.uname()[0].startswith("MSYS"):
     import subprocess
     import jobserver_win as jobserver
 else:

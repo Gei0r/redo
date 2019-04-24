@@ -1,9 +1,9 @@
 """redo-ifchange: build the given targets if they have changed."""
-import os, sys, traceback
+import os, sys, traceback, platform
 from . import env, builder, deps, helpers, logs, state
 from .logs import debug2, err
 
-if os.name == 'nt':
+if os.name == 'nt' or platform.uname()[0].startswith("MSYS"):
     import jobserver_win as jobserver
 else:
     import jobserver
