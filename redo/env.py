@@ -124,8 +124,17 @@ def init(targets):
         if not targets:
             # if no other targets given, assume the current directory
             targets = ['all']
-        base = os.path.commonprefix([os.path.abspath(os.path.dirname(t))
-                                     for t in targets] + [os.getcwd()])
+
+        paths = []
+        for t in targets:
+            dirname = os.path.dirname(t)
+            abspath = os.path.abspath(dirname)
+            helpers.mylog("- " + dirname + " -> abs=" + abspath)
+            paths.append(abspath)
+        helpers.mylog("- " + os.getcwd())
+        paths.append(os.getcwd())
+
+        base = os.path.commonprefix(paths)
         helpers.mylog("base=" + base)
         bsplit = base.split('/')
         for i in range(len(bsplit)-1, 0, -1):
@@ -136,6 +145,8 @@ def init(targets):
         os.environ['REDO_BASE'] = base
         os.environ['REDO_STARTDIR'] = os.getcwd()
 
+    os.environ['REDO_BASE'] = helpers.fixPath_winPosix(os.environ['REDO_BASE'])
+    os.environ['REDO_STARTDIR'] = helpers.fixPath_winPosix(os.environ['REDO_STARTDIR'])
     helpers.mylog("=> BASE: " + os.environ['REDO_BASE'] + \
                   " STARTDIR=" + os.environ['REDO_STARTDIR'])
     inherit()

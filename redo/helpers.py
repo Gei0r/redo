@@ -53,3 +53,18 @@ def fd_exists(fd):
     except IOError:
         return False
     return True
+
+def fixPath_winPosix(p):
+    """ Some python installations on windows think they're running on posix,
+    which means the expect unix-style paths (/c/windows/...).
+    Sometimes, they will encounter windows-style paths, however
+    (C:\windows\...), which will confuse them.
+    This function will transform windows-style paths to unix-style paths if the
+    os.name is 'posix', otherwise it will do nothing.
+
+    A windows-style path is detected by the second and third char being :\
+    """
+    if os.name == 'posix' and len(p) >= 3 and \
+       (p[1:3] == ':\\' or p[1:3] == ":/"):
+        p = "/" + p[0].lower() + p[2:].replace("\\", "/")
+    return p
