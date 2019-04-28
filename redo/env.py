@@ -1,6 +1,7 @@
 """Manage redo-related environment variables."""
 import os, sys
 from .atoi import atoi
+from .helpers import fixPath_winPosix
 
 is_toplevel = False
 
@@ -114,6 +115,8 @@ def init(targets):
         os.environ['REDO_BASE'] = base
         os.environ['REDO_STARTDIR'] = os.getcwd()
 
+    os.environ['REDO_BASE'] = fixPath_winPosix(os.environ['REDO_BASE'])
+    os.environ['REDO_STARTDIR'] = fixPath_winPosix(os.environ['REDO_STARTDIR'])
     inherit()
 
 
