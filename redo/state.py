@@ -1,7 +1,7 @@
 """Code for manipulating redo's state database."""
 import sys, os, errno, stat, sqlite3
 from . import cycles, env
-from .helpers import unlink, close_on_exec
+from .helpers import unlink, close_on_exec, fixPath_winPosix
 from .logs import warn, debug2, debug3
 
 if os.name == 'nt':
@@ -186,6 +186,8 @@ def relpath(t, base):
     if not _cwd:
         _cwd = os.getcwd()
 
+    t = fixPath_winPosix(t)
+    base = fixPath_winPosix(base)
     t = os.path.normpath(_realdirpath(os.path.join(_cwd, t)))
     try:
         return os.path.relpath(t, base)

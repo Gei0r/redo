@@ -312,7 +312,7 @@ class _BuildJob(object):
         state.commit()
         meta('do', state.target_relpath(t))
         def call_subproc():
-            if os.name == 'nt':
+            if jobserver.isWindows():
                 return self._subproc_win(dodir, basename, ext, argv)
             else:
                 self._subproc(dodir, basename, ext, argv)
@@ -347,7 +347,7 @@ class _BuildJob(object):
         meta('check', state.target_relpath(self.t))
         state.commit()
         def subtask():
-            if os.name == 'nt':
+            if jobserver.isWindows():
                 environ = os.environ.copy()
                 environ['REDO_DEPTH'] = env.v.DEPTH + '  '
                 return {'argv': argv, 'env': environ}

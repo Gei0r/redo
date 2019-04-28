@@ -66,3 +66,6 @@ def start(reason, jobfunc, donefunc):
     child.wait()
 
     donefunc(reason, child.returncode)
+
+def isWindows():
+    return True
