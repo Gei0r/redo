@@ -179,6 +179,21 @@ def _realdirpath(t):
     return os.path.join(dname, fname)
 
 
+def fixPath_winPosix(p):
+    """ Some python installations on windows think they're running on posix,
+    which means the expect unix-style paths (/c/windows/...).
+    Sometimes, they will encounter windows-style paths, however
+    (C:\windows\...), which will confuse them.
+    This function will transform windows-style paths to unix-style paths if the
+    os.name is 'posix', otherwise it will do nothing.
+
+    A windows-style path is detected by the second and third char being :\
+    """
+    if os.name == 'posix' and len(p) >= 3 and \
+       (p[1:3] == ':\\' or p[1:3] == ":/"):
+        p = "/" + p[0].lower() + p[2:].replace("\\", "/")
+    return p
+
 _cwd = None
 def relpath(t, base):
     """Given a relative or absolute path t, express it relative to base."""
@@ -186,6 +201,8 @@ def relpath(t, base):
     if not _cwd:
         _cwd = os.getcwd()
 
+    t = fixPath_winPosix(t)
+    base = fixPath_winPosix(base)
     t = os.path.normpath(_realdirpath(os.path.join(_cwd, t)))
     try:
         return os.path.relpath(t, base)

@@ -10,7 +10,7 @@ case `uname -s` in
 			# would completely confuse python.
 			# So we fix the path here. We could use the cygpath tool, but this is faster
 			if os.name == 'posix' and len(sys.argv[0]) >= 3 and sys.argv[0][1:3] == ':\\\\\\\':
-			    sys.argv[0] = "/" + sys.argv[0][0] + sys.argv[0][2:].replace("\\\\\\\", "/")
+			    sys.argv[0] = "/" + sys.argv[0][0] + sys.argv[0][2:].replace("\\\\\\\", "/").replace("//", "/")
 
 		EOF
         ;;

@@ -550,3 +550,6 @@ def start(reason, jobfunc, donefunc):
     os.close(w)
     pd = Job(reason, pid, donefunc)
     _waitfds[r] = pd
+
+def isWindows():
+    return False
