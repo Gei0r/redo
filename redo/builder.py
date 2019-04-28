@@ -99,7 +99,10 @@ def start_stdin_log_reader(status, details, pretty, color,
             if color != 1:
                 argv.append('--color' if color >= 2 else '--no-color')
             argv.append('-')
+            helpers.mylog("2 starting " + " ".join(argv))
+            helpers.mylog("  PATH:\n  " + "\n  ".join(sys.path))
             os.execvp(argv[0], argv)
+            helpers.mylog("2 returned!!")
         except Exception, e:  # pylint: disable=broad-except
             sys.stderr.write('redo-log: exec: %s\n' % e)
         finally:
@@ -195,9 +198,13 @@ class _BuildJob(object):
             return self._finalize(e.rv)
 
         if env.v.NO_OOB or dirty == True:  # pylint: disable=singleton-comparison
+            helpers.mylog("self._start_self()")
             self._start_self()
+            helpers.mylog("self._start_self() returned")
         else:
+            helpers.mylog("self._start_deps_unlocked(dirty=" + dirty + ")")
             self._start_deps_unlocked(dirty)
+            helpers.mylog("self._start_deps_unlocked(dirty) returned")
 
     def _start_self(self):
         """Run jobserver.start() to build this object's target file."""
@@ -312,13 +319,15 @@ class _BuildJob(object):
         state.commit()
         meta('do', state.target_relpath(t))
         def call_subproc():
-            if os.name == 'nt':
+            if jobserver.isWindows():
                 return self._subproc_win(dodir, basename, ext, argv)
             else:
                 self._subproc(dodir, basename, ext, argv)
         def call_exited(t, rv):
             self._subproc_exited(t, rv, argv)
+        helpers.mylog("jobserver.start(t=" + t + ")")
         jobserver.start(t, call_subproc, call_exited)
+        helpers.mylog("jobserver.start(t=" + t + ") finished")
 
     def _start_deps_unlocked(self, dirty):
         """Run jobserver.start to build objects needed to check deps.
@@ -347,7 +356,7 @@ class _BuildJob(object):
         meta('check', state.target_relpath(self.t))
         state.commit()
         def subtask():
-            if os.name == 'nt':
+            if jobserver.isWindows():
                 environ = os.environ.copy()
                 environ['REDO_DEPTH'] = env.v.DEPTH + '  '
                 return {'argv': argv, 'env': environ}
@@ -355,7 +364,11 @@ class _BuildJob(object):
                 os.environ['REDO_DEPTH'] = env.v.DEPTH + '  '
                 # python ignores SIGPIPE
                 signal.signal(signal.SIGPIPE, signal.SIG_DFL)
+                helpers.mylog("3 starting " + " ".join(argv))
+                helpers.mylog("  cwd: " + here)
+                helpers.mylog("  PATH:\n  " + "\n  ".join(sys.path))
                 os.execvp(argv[0], argv)
+                helpers.mylog("returned!!")
                 assert 0
                 # returns only if there's an exception
         def job_exited(t, rv):
@@ -409,7 +422,15 @@ class _BuildJob(object):
         signal.signal(signal.SIGPIPE, signal.SIG_DFL)  # python ignores SIGPIPE
         if env.v.VERBOSE or env.v.XTRACE:
             logs.write('* %s' % ' '.join(argv).replace('\n', ' '))
-        os.execvp(argv[0], argv)
+        helpers.mylog("1 starting " + " ".join(argv))
+        helpers.mylog("  cwd: " + os.getcwd())
+        helpers.mylog("  PATH: \n  " + "\n  ".join(sys.path))
+        try:
+            os.execvp(argv[0], argv)
+            helpers.mylog("returned!!")
+        except:
+            helpers.mylog("exception!!")
+            raise
         # FIXME: it would be nice to log the exit code to logf.
         #  But that would have to happen in the parent process, which doesn't
         #  have logf open.
@@ -470,6 +491,7 @@ class _BuildJob(object):
 
         This is run in the *parent* process.
         """
+        helpers.mylog("finished: " + " ".join(argv))
         try:
             state.check_sane()
             rv = self._record_new_state(t, rv, argv)
@@ -486,6 +508,7 @@ class _BuildJob(object):
         (like writing directly to $1 instead of $3).  We also have to record
         the new file stamp data for the completed target.
         """
+        helpers.mylog("record_new_state for " + t)
         outfile = self.outfile
         before_t = self.before_t
         after_t = _try_stat(t)
@@ -507,6 +530,7 @@ class _BuildJob(object):
             # be some kind of two-stage commit, I guess.
             if st1.st_size > 0 and not st2:
                 # script wrote to stdout.  Copy its contents to the tmpfile.
+                helpers.mylog("write stdout to tmpfile")
                 helpers.unlink(self.tmpname)
                 try:
                     newf = open(self.tmpname, 'w')
@@ -530,12 +554,14 @@ class _BuildJob(object):
                         newf.write(b)
                     newf.close()
                     st2 = _try_stat(self.tmpname)
+                    helpers.mylog("wrote to " + self.tmpname)
             if st2:
                 # either $3 file was created *or* stdout was written to.
                 # therefore tmpfile now exists.
                 try:
                     # Atomically replace the target file
-                    if os.name == 'nt':
+                    helpers.mylog("rename " + self.tmpname + " to " + t)
+                    if os.name == 'nt' or platform.uname()[0].startwith('MSYS'):
                         # on windows, rename to an existing file is not silent
                         helpers.unlink(t)
                     os.rename(self.tmpname, t)
@@ -604,6 +630,7 @@ def run(targets, shouldbuildfunc):
     locked = []
 
     def job_exited(t, rv):
+        helpers.mylog(t + " exited, rv=" + str(rv))
         if rv:
             retcode[0] = 1
 
@@ -639,6 +666,7 @@ def run(targets, shouldbuildfunc):
     seen = {}
     lock = None
     for t in targets:
+        helpers.mylog("considering " + t)
         if not t:
             err('cannot build the empty target ("").\n')
             retcode[0] = 204
@@ -672,9 +700,11 @@ def run(targets, shouldbuildfunc):
             # FIXME: separate obtaining the fid from creating the File.
             # FIXME: maybe integrate locking into the File object?
             f.refresh()
+            helpers.mylog("starting buildJob for " + t)
             _BuildJob(t, f, lock,
                       shouldbuildfunc=shouldbuildfunc,
                       donefunc=job_exited).start()
+            helpers.mylog("buildjob.start returned for " + t)
         state.commit()
         assert state.is_flushed()
         lock = None
@@ -738,9 +768,11 @@ def run(targets, shouldbuildfunc):
                 retcode[0] = 2
                 lock.unlock()
             else:
+                helpers.mylog("2 starting buildJob for " + t)
                 _BuildJob(t, state.File(fid=fid), lock,
                           shouldbuildfunc=shouldbuildfunc,
                           donefunc=job_exited).start()
+                helpers.mylog("2 buildJob finished for " + t)
             lock = None
     state.commit()
     return retcode[0]

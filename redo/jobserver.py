@@ -502,6 +502,7 @@ class Job(object):
           donefunc: the function(name, return_value) to call when the
             subprocess exits.
         """
+        helpers.mylog("Job.__init__")
         self.name = name
         self.pid = pid
         self.rv = None
@@ -524,6 +525,7 @@ def start(reason, jobfunc, donefunc):
       donefunc: the function(reason, return_value) to call **in the parent**
         when the subprocess exits.
     """
+    helpers.mylog("jobserver.start(reason=" + reason + ")")
     assert state.is_flushed()
     assert _mytokens <= 1
     assert _mytokens == 1
@@ -531,6 +533,7 @@ def start(reason, jobfunc, donefunc):
     # in order for the universe to stay in balance.
     _destroy_tokens(1)
     r, w = _make_pipe(50)
+    helpers.mylog("before fork...")
     pid = os.fork()
     if pid == 0:
         # child
@@ -546,7 +549,11 @@ def start(reason, jobfunc, donefunc):
         finally:
             _debug('exit: %d\n' % rv)
             os._exit(rv)
+    helpers.mylog("after fork")
     helpers.close_on_exec(r, True)
     os.close(w)
     pd = Job(reason, pid, donefunc)
     _waitfds[r] = pd
+
+def isWindows():
+    return False

@@ -2,7 +2,7 @@
 #
 # Right now this jobserver does not support multiple jobs.
 
-import subprocess, state
+import subprocess, state, sys, helpers
 
 def setup(maxjobs):
     """ Start the jobserver (if it isn't already) with the given token count.
@@ -49,20 +49,28 @@ def start(reason, jobfunc, donefunc):
         the function(reason, return_value) to call **in the parent**
         when the subprocess exits.
     """
-
+    helpers.mylog("jobserver_win start(reason=" + reason + ")")
     assert state.is_flushed()
 
     p = jobfunc()  # requested params for the child process
 
     try:
+        helpers.mylog('starting ' + ' '.join(p.get('argv')) + "   cwd: " + p.get("cwd"))
         child = subprocess.Popen(p.get("argv"), cwd=p.get("cwd"), 
                                  env=p.get("env"),
                                  stdout=p.get("stdout"),
                                  stderr=p.get("stderr"))
     except OSError:
-        # todo: additional logging?
+        logs.err('Could not start: ' + " ".join(p.get("argv")))
+        logs.err('cwd: ' + p.get(cwd))
         raise
 
+    helpers.mylog("waiting for " + p.get("argv")[0] + "...")
     child.wait()
+    helpers.mylog("subprocess finished: " + p.get("argv")[0] + \
+                  " rv=" + str(child.returncode))
 
     donefunc(reason, child.returncode)
+
+def isWindows():
+    return True

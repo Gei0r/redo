@@ -10,7 +10,7 @@ case `uname -s` in
 			# would completely confuse python.
 			# So we fix the path here. We could use the cygpath tool, but this is faster
 			if os.name == 'posix' and len(sys.argv[0]) >= 3 and sys.argv[0][1:3] == ':\\\\\\\':
-			    sys.argv[0] = "/" + sys.argv[0][0] + sys.argv[0][2:].replace("\\\\\\\", "/")
+			    sys.argv[0] = "/" + sys.argv[0][0] + sys.argv[0][2:].replace("\\\\\\\", "/").replace("//", "/")
 
 		EOF
         ;;
@@ -38,13 +38,18 @@ case $1 in
 		cat >$3 <<-EOF
 			#!$py
 			import sys, os;
+			print "~~~~~~~~ $cmd" + " ".join(sys.argv)
 			$fixwinpath
+			print "~~~~~~~~ $cmd" + " ".join(sys.argv)
 			exe = os.path.realpath(os.path.abspath(sys.argv[0]))
 			exedir = os.path.dirname(exe)
 			sys.path.insert(0, os.path.join(exedir, '../lib'))
 			sys.path.insert(0, os.path.join(exedir, '..'))
+			sys.path.insert(0, os.path.join(exedir, '../redo'))
 			import redo.title
 			import redo.cmd_$cmd
+			import helpers
+			helpers.mylog("start: " + " ".join(sys.argv))
 			redo.title.auto()
 			redo.cmd_$cmd.main()
 		EOF
