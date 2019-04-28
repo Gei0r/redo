@@ -561,7 +561,7 @@ class _BuildJob(object):
                 try:
                     # Atomically replace the target file
                     helpers.mylog("rename " + self.tmpname + " to " + t)
-                    if os.name == 'nt' or platform.uname()[0].startwith('MSYS'):
+                    if os.name == 'nt' or platform.uname()[0].startswith('MSYS'):
                         # on windows, rename to an existing file is not silent
                         helpers.unlink(t)
                     os.rename(self.tmpname, t)

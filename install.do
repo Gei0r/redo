@@ -16,9 +16,11 @@ fi
 redo-ifchange all
 rm -f redo/whichpython
 redo redo/whichpython
+echo "~~ redo/whichpython finished" >> logY.txt
 read py <redo/whichpython
 
 echo "Installing to: $DESTDIR$PREFIX"
+echo "Installing to: $DESTDIR$PREFIX" >> logY.txt
 
 # make dirs
 "$INSTALL" -d "$MANDIR/man1" "$DOCDIR" "$BINDIR" \

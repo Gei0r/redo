@@ -65,9 +65,9 @@ def start(reason, jobfunc, donefunc):
         logs.err('cwd: ' + p.get(cwd))
         raise
 
-    helpers.mylog("waiting for " + p.get("argv")[0] + "...")
+    helpers.mylog("waiting for " + " ".join(p.get("argv")))
     child.wait()
-    helpers.mylog("subprocess finished: " + p.get("argv")[0] + \
+    helpers.mylog("subprocess finished: " + " ".join(p.get("argv")) + \
                   " rv=" + str(child.returncode))
 
     donefunc(reason, child.returncode)
