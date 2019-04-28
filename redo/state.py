@@ -202,7 +202,7 @@ def relpath(t, base):
         _cwd = os.getcwd()
 
     print "relpath(" + t + ", " + base + ") base:" + env.v.BASE
-    traceback.print_stack(file=sys.stdout)
+    # traceback.print_stack(file=sys.stdout)
     t = fixPath_winPosix(t)
     base = fixPath_winPosix(base)
     print "relpath(" + t + ", " + base + ")"
@@ -305,7 +305,7 @@ class File(object):
             self.changed_runid = env.v.RUNID
 
     def __init__(self, fid=None, name=None, cols=None, allow_add=True):
-        print "init: fid=" + str(fid) + " name=" + name
+        print "init: fid=" + str(fid) + " name=" + str(name)
         if cols:
             self._init_from_cols(cols)
         else:

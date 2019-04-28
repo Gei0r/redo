@@ -1,5 +1,5 @@
 """Manage redo-related environment variables."""
-import os, sys
+import os, sys, helpers
 from .atoi import atoi
 
 is_toplevel = False
@@ -25,26 +25,45 @@ class Env(object):
         self.BASE = os.environ['REDO_BASE'].rstrip('/')
 
         # Everything else, we can recover from defaults if unset.
-        self.PWD = _get('REDO_PWD', '')
-        self.TARGET = _get('REDO_TARGET', '')
-        self.DEPTH = _get('REDO_DEPTH', '')
-        self.DEBUG = atoi(_get('REDO_DEBUG', ''))
-        self.DEBUG_LOCKS = _get_bool('REDO_DEBUG_LOCKS', '')
-        self.DEBUG_PIDS = _get_bool('REDO_DEBUG_PIDS', '')
+        self.PWD          = _get('REDO_PWD', '')
+        self.TARGET       = _get('REDO_TARGET', '')
+        self.DEPTH        = _get('REDO_DEPTH', '')
+        self.DEBUG        = atoi(_get('REDO_DEBUG', ''))
+        self.DEBUG_LOCKS  = _get_bool('REDO_DEBUG_LOCKS', '')
+        self.DEBUG_PIDS   = _get_bool('REDO_DEBUG_PIDS', '')
         self.LOCKS_BROKEN = _get_bool('REDO_LOCKS_BROKEN', '')
-        self.VERBOSE = _get_int('REDO_VERBOSE', '')
-        self.XTRACE = _get_int('REDO_XTRACE', '')
-        self.KEEP_GOING = _get_bool('REDO_KEEP_GOING', '')
-        self.LOG = _get_int('REDO_LOG', '1')
-        self.LOG_INODE = _get('REDO_LOG_INODE', '')
-        self.COLOR = _get_int('REDO_COLOR', '')
-        self.PRETTY = _get_int('REDO_PRETTY', '')
-        self.SHUFFLE = _get_bool('REDO_SHUFFLE', '')
-        self.STARTDIR = _get('REDO_STARTDIR', '')
-        self.RUNID = _get_int('REDO_RUNID', '') or None
-        self.UNLOCKED = _get_bool('REDO_UNLOCKED', '')
-        self.NO_OOB = _get_bool('REDO_NO_OOB', '')
+        self.VERBOSE      = _get_int('REDO_VERBOSE', '')
+        self.XTRACE       = _get_int('REDO_XTRACE', '')
+        self.KEEP_GOING   = _get_bool('REDO_KEEP_GOING', '')
+        self.LOG          = _get_int('REDO_LOG', '1')
+        self.LOG_INODE    = _get('REDO_LOG_INODE', '')
+        self.COLOR        = _get_int('REDO_COLOR', '')
+        self.PRETTY       = _get_int('REDO_PRETTY', '')
+        self.SHUFFLE      = _get_bool('REDO_SHUFFLE', '')
+        self.STARTDIR     = _get('REDO_STARTDIR', '')
+        self.RUNID        = _get_int('REDO_RUNID', '') or None
+        self.UNLOCKED     = _get_bool('REDO_UNLOCKED', '')
+        self.NO_OOB       = _get_bool('REDO_NO_OOB', '')
 
+        helpers.mylog("PWD         =" + str(self.PWD))
+        helpers.mylog("TARGET      =" + str(self.TARGET))
+        helpers.mylog("DEPTH       =" + str(self.DEPTH))
+        helpers.mylog("DEBUG       =" + str(self.DEBUG))
+        helpers.mylog("DEBUG_LOCKS =" + str(self.DEBUG_LOCKS))
+        helpers.mylog("DEBUG_PIDS  =" + str(self.DEBUG_PIDS))
+        helpers.mylog("LOCKS_BROKEN=" + str(self.LOCKS_BROKEN))
+        helpers.mylog("VERBOSE     =" + str(self.VERBOSE))
+        helpers.mylog("XTRACE      =" + str(self.XTRACE))
+        helpers.mylog("KEEP_GOING  =" + str(self.KEEP_GOING))
+        helpers.mylog("LOG         =" + str(self.LOG))
+        helpers.mylog("LOG_INODE   =" + str(self.LOG_INODE))
+        helpers.mylog("COLOR       =" + str(self.COLOR))
+        helpers.mylog("PRETTY      =" + str(self.PRETTY))
+        helpers.mylog("SHUFFLE     =" + str(self.SHUFFLE))
+        helpers.mylog("STARTDIR    =" + str(self.STARTDIR))
+        helpers.mylog("RUNID       =" + str(self.RUNID))
+        helpers.mylog("UNLOCKED    =" + str(self.UNLOCKED))
+        helpers.mylog("NO_OOB      =" + str(self.NO_OOB))
 
 def inherit():
     """Read environment (which must already be set) to get runtime settings."""
@@ -80,6 +99,7 @@ def init(targets):
       targets: a list of targets we're trying to build.  We use this to
         help in guessing where the .redo database is located.
     """
+    helpers.mylog("Init env")
     global is_toplevel
     if not os.environ.get('REDO'):
         # toplevel call to redo
@@ -100,11 +120,13 @@ def init(targets):
         os.environ['REDO'] = os.path.abspath(sys.argv[0])
 
     if not os.environ.get('REDO_BASE'):
+        helpers.mylog("defining REDO_BASE")
         if not targets:
             # if no other targets given, assume the current directory
             targets = ['all']
         base = os.path.commonprefix([os.path.abspath(os.path.dirname(t))
                                      for t in targets] + [os.getcwd()])
+        helpers.mylog("base=" + base)
         bsplit = base.split('/')
         for i in range(len(bsplit)-1, 0, -1):
             newbase = '/'.join(bsplit[:i])
@@ -114,6 +136,8 @@ def init(targets):
         os.environ['REDO_BASE'] = base
         os.environ['REDO_STARTDIR'] = os.getcwd()
 
+    helpers.mylog("=> BASE: " + os.environ['REDO_BASE'] + \
+                  " STARTDIR=" + os.environ['REDO_STARTDIR'])
     inherit()
 
 

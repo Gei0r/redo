@@ -32,7 +32,11 @@ def close_on_exec(fd, yes):
             fcntl.fcntl(fd, fcntl.F_SETFD, fl)
             
 def mylog(msg):
-    f = open("/d/temp/logX.txt", "a")
+    try:
+        f = open("/d/temp/logX.txt", "a")
+    except IOError:
+        f = open("D:/temp/logX.txt", "a")
+
     f.write(msg + "\n")
     f.close()
 

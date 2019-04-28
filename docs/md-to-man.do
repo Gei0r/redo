@@ -1,4 +1,4 @@
-redo-ifchange md2man.py ../redo/py
+redo-ifchange md2man.py ../redo/py >&2
 if ../redo/py ./md2man.py /dev/null /dev/null >/dev/null; then
 	echo '../redo/py ./md2man.py $2.md.tmp $2.html'
 else

@@ -38,9 +38,9 @@ case $1 in
 		cat >$3 <<-EOF
 			#!$py
 			import sys, os;
-			print "~~~~~~~~ $cmd" + " ".join(sys.argv)
+			print "~~~~~~~~ $cmd " + " ".join(sys.argv) + " cwd: " + os.getcwd() + " base: " + str(os.environ.get("REDO_BASE"))
 			$fixwinpath
-			print "~~~~~~~~ $cmd" + " ".join(sys.argv)
+			print "~~~~~~~~ $cmd " + " ".join(sys.argv) + " cwd: " + os.getcwd()
 			exe = os.path.realpath(os.path.abspath(sys.argv[0]))
 			exedir = os.path.dirname(exe)
 			sys.path.insert(0, os.path.join(exedir, '../lib'))
