@@ -25,7 +25,14 @@ def main():
     # grabbing locks.
     os.environ['REDO_NO_OOB'] = '1'
     argv = ['redo-ifchange'] + deps
-    rv = os.spawnvp(os.P_WAIT, argv[0], argv)
+    if os.name == 'nt':
+        # no spawnvp() on windows, we need to search PATH ourselves.
+        from .helpers import which_win
+        argv[0] = which_win(argv[0])
+        rv = os.spawnv(os.P_WAIT, argv[0], argv)
+    else:
+        rv = os.spawnvp(os.P_WAIT, argv[0], argv)
+
     if rv:
         sys.exit(rv)
 
@@ -36,7 +43,14 @@ def main():
     # who initiated the OOB in the first place.)
     os.environ['REDO_UNLOCKED'] = '1'
     argv = ['redo-ifchange', target]
-    rv = os.spawnvp(os.P_WAIT, argv[0], argv)
+    if os.name == 'nt':
+        # no spawnvp() on windows, we need to search PATH ourselves.
+        from .helpers import which_win
+        argv[0] = which_win(argv[0])
+        rv = os.spawnv(os.P_WAIT, argv[0], argv)
+    else:
+        rv = os.spawnvp(os.P_WAIT, argv[0], argv)
+
     if rv:
         sys.exit(rv)
 

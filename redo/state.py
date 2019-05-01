@@ -567,8 +567,13 @@ class Lock(object):
             raise Exception("can't unlock %r - we don't own it"
                             % self.fid)
         if os.name == 'nt':
-            os.lseek(_lockfile, self.fid, os.SEEK_SET)
-            msvcrt.locking(_lockfile, msvcrt.LK_UNLCK, 1)
+            try:
+                os.lseek(_lockfile, self.fid, os.SEEK_SET)
+                msvcrt.locking(_lockfile, msvcrt.LK_UNLCK, 1)
+            except IOError:
+                # fixme: investigate why this happens sometimes
+                # Errno 13 Permission denied
+                pass  # ignore for now
         else:
             fcntl.lockf(_lockfile, fcntl.LOCK_UN, 1, self.fid)
         self.owned = False

@@ -2,7 +2,7 @@
 #
 # Right now this jobserver does not support multiple jobs.
 
-import subprocess, state
+import subprocess, state, helpers
 
 def setup(maxjobs):
     """ Start the jobserver (if it isn't already) with the given token count.
@@ -53,15 +53,18 @@ def start(reason, jobfunc, donefunc):
     assert state.is_flushed()
 
     p = jobfunc()  # requested params for the child process
+    argv = p.get("argv")
+    argv[0] = helpers.which_win(argv[0])
 
     try:
-        child = subprocess.Popen(p.get("argv"), cwd=p.get("cwd"), 
+        child = subprocess.Popen(argv, cwd=p.get("cwd"),
                                  env=p.get("env"),
                                  stdout=p.get("stdout"),
                                  stderr=p.get("stderr"))
-    except OSError:
-        # todo: additional logging?
-        raise
+    except OSError as e:
+        import sys
+        raise OSError(e.message + " (" + " ".join(argv) + ")",
+                      sys.exc_info()[2])
 
     child.wait()
 

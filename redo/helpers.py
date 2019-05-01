@@ -24,7 +24,7 @@ def unlink(f):
 
 
 def close_on_exec(fd, yes):
-    if os.name != 'nt':
+    if os.name != 'nt':  # not supported on windows
         fl = fcntl.fcntl(fd, fcntl.F_GETFD)
         fl &= ~fcntl.FD_CLOEXEC
         if yes:
@@ -61,3 +61,35 @@ def fixPath_winPosix(p):
        (p[1:3] == ':\\' or p[1:3] == ":/"):
         p = "/" + p[0].lower() + p[2:].replace("\\", "/")
     return p
+
+def which_win(name):
+    """ Try to find $name.exe or $name.bat in PATH.
+    Returns the absolute path to the .exe or .bat file.
+    The current directory ('.') is implicitly at the front of PATH.
+
+    Raises IOError if name is not found.
+
+    On windows, subprocess.Popen() does not search PATH for the executable.
+    Additionally, os.spawn*p() functions are not available, so we have to
+    search PATH ourselves.
+    """
+
+    if(name.endswith('.exe') or name.endswith('.bat')):
+        name = name[0:-5]
+
+    # search cwd ('.') first.
+    if os.access(name + ".exe", os.X_OK):
+        return os.path.abspath(name + ".exe")
+    if os.access(name + ".bat", os.X_OK):
+        return os.path.abspath(name + ".bat")
+
+    # go through PATH to find $name.exe or $name.bat
+    for p in os.environ['PATH'].split(os.pathsep):
+        p = p.strip('"')  # Sometimes paths are surrounded by ""
+
+        if os.access(os.path.join(p, name + '.exe'), os.X_OK):
+            return os.path.join(p, name + '.exe')
+        if os.access(os.path.join(p, name + '.bat'), os.X_OK):
+            return os.path.join(p, name + '.bat')
+
+    raise IOError('Could not find ' + name + ' in PATH')
