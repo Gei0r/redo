@@ -134,7 +134,7 @@ SECTION _realpath
 rm -rf y
 mkdir y
 case `uname -s` in
-    MSYS_NT*|CYGWIN_NT*|Windows_NT*)
+    MSYS_NT*|MINGW64_NT*|CYGWIN_NT*|Windows_NT*)
         # The following 'ln' doesn't work on windows ("Permission denied"), even if
         # winsymlinks:nativestrict is activated.
         # So we use the native command for that.

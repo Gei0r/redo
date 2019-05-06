@@ -8,7 +8,7 @@ for iter in 10 20; do
 	mkdir y
 	: >y/static
 	case `uname -s` in
-		MSYS_NT*|CYGWIN_NT*|Windows_NT*)
+		MSYS_NT*|MINGW64_NT*|CYGWIN_NT*|Windows_NT*)
 			# The following 'ln' doesn't work on windows ("Permission denied"),
 			# even if winsymlinks:nativestrict is activated.
 			# So we use the native command for that.

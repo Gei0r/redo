@@ -39,7 +39,7 @@ done
 # It's important for the file to actually be named 'sh'.  Some shells (like
 # bash and zsh) only go into POSIX-compatible mode if they have that name.
 case `uname -s` in
-    MSYS_NT*|CYGWIN_NT*)
+    MSYS_NT*|MINGW64_NT*|CYGWIN_NT*)
         cp -R redo/sh.exe "$LIBDIR/sh.exe"
         ;;
     Windows_NT*)  # busybox-w32

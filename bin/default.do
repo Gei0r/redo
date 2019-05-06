@@ -1,7 +1,7 @@
 exec >&2
 
 case `uname -s` in
-	MSYS_NT*|CYGWIN_NT*|Windows_NT*)
+	MSYS_NT*|MINGW64_NT*|CYGWIN_NT*|Windows_NT*)
 		read -d '' fixwinpath <<-EOF || true
 
 			# Some python version on windows (e.g. msys64/usr/bin/python2.7) think they

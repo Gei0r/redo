@@ -278,10 +278,15 @@ b" ] || exit 57
 [ "$t2" = "A
 b" ] || exit 58
 
-if [[ `uname -s` != MSYS_NT* ]] ; then
-   echo "`printf 'foo\r\n'` bar" >broken
-   echo "`printf 'foo\r\n'`"" bar" | diff -q - broken || fail 59
-fi
+case `uname -s` in
+    MSYS_NT*|MINGW64_NT*|CYGWIN_NT*|Windows_NT*)
+        # skip this test on windows
+        ;;
+    *)
+        echo "`printf 'foo\r\n'` bar" >broken
+        echo "`printf 'foo\r\n'`"" bar" | diff -q - broken || fail 59
+        ;;
+esac
 
 
 #
@@ -516,7 +521,7 @@ x=$(printf "a%-5sc" "b")
 # Make sure cd supports -L and -P options properly
 rm -f shlink
 case `uname -s` in
-    MSYS_NT*|CYGWIN_NT*|Windows_NT*)
+    MSYS_NT*|MINGW64_NT*|CYGWIN_NT*|Windows_NT*)
         # On windows, symlinks are not supported out of the box.
         # Since we don't want to require enabling symlinks to build redo, we
         # don't perform these tests on windows.

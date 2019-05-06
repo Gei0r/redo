@@ -25,7 +25,7 @@ for sh in $SHELL_CANDIDATES ; do
 	# they have that name.  If they're not in POSIX-compatible mode,
 	# they'll fail the test.
 	case `uname -s` in
-		MSYS_NT*|CYGWIN_NT*|Windows_NT*)
+		MSYS_NT*|MINGW64_NT*|CYGWIN_NT*|Windows_NT*)
 			# Some windows environments need the .exe suffix
 			rm -f $1.new/sh.exe
 			ln -s $FOUND $1.new/sh.exe
