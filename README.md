@@ -1,3 +1,5 @@
+[![Build status](https://ci.appveyor.com/api/projects/status/5tm5r048ylx4lya3/branch/win?svg=true)](https://ci.appveyor.com/project/Gei0r/redo/branch/win)
+
 # redo - a recursive build system
 
 Smaller, easier, more powerful, and more reliable than `make`.
