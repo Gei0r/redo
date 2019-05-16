@@ -17,7 +17,7 @@ operating systems:
 ### Using redo
 
 If you only want to use `redo`, you can download pre-built version from 
-[Appveyor](https://ci.appveyor.com/api/projects/Gei0r/redo/artifacts/inst%2FBuilt files for windows.zip?job=Image: Visual Studio 2017).
+[Appveyor](https://ci.appveyor.com/api/projects/Gei0r/redo/artifacts/inst%2FBuilt%20files%20for%20windows.zip?job=Image:%20Visual%20Studio%202017).
 
 This zip file contains [busybox-w32](https://frippery.org/busybox/) which redo
 uses to run the `.do` scripts.
