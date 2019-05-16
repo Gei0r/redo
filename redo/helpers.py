@@ -31,7 +31,17 @@ def close_on_exec(fd, yes):
             fl |= fcntl.FD_CLOEXEC
             fcntl.fcntl(fd, fcntl.F_SETFD, fl)
             
+def mylog(msg):
+    try:
+        f = open("/d/temp/logX.txt", "a")
+    except IOError:
+        try:
+            f = open("D:/temp/logX.txt", "a")
+        except IOError:
+            f = open("~/logX.txt", "a")
 
+    f.write(msg + "\n")
+    f.close()
 
 def fd_exists(fd):
     if os.name == 'nt':

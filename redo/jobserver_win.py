@@ -55,6 +55,8 @@ def start(reason, jobfunc, donefunc):
     p = jobfunc()  # requested params for the child process
     argv = p.get("argv")
     argv[0] = helpers.which_win(argv[0])
+    argv = map(lambda a: a.replace("\\", "/") ,argv)
+    helpers.mylog("launch " + " ".join(argv))
 
     try:
         child = subprocess.Popen(argv, cwd=p.get("cwd"),

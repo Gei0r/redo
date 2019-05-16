@@ -1,5 +1,5 @@
 """Code for detecting and aborting on cyclic dependency loops."""
-import os
+import os, helpers
 
 
 class CyclicDependencyError(Exception):
@@ -16,9 +16,13 @@ def add(fid):
     items = set(_get())
     items.add(str(fid))
     os.environ['REDO_CYCLES'] = ':'.join(list(items))
+    helpers.mylog("add " + str(fid) + " to cycles")
 
 
 def check(fid):
-    if str(fid) in _get():
+    cy = _get()
+    helpers.mylog("check if " + str(fid) + " is in " + ", ".join(cy))
+    if str(fid) in cy:
         # Lock already held by parent: cyclic dependency
+        helpers.mylog("!! " + str(fid) + " already in " + os.environ.get('REDO_CYCLES', ''))
         raise CyclicDependencyError()

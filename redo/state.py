@@ -1,7 +1,7 @@
 """Code for manipulating redo's state database."""
 import sys, os, errno, stat, sqlite3
 from . import cycles, env
-from .helpers import unlink, close_on_exec, fixPath_winPosix
+from .helpers import unlink, close_on_exec, fixPath_winPosix, mylog
 from .logs import warn, debug2, debug3
 
 if os.name == 'nt':
@@ -189,7 +189,9 @@ def relpath(t, base):
     base = fixPath_winPosix(base)
     t = os.path.normpath(_realdirpath(os.path.join(_cwd, t)))
     try:
-        return os.path.relpath(t, base)
+        ret = os.path.relpath(t, base).replace("\\", "/")
+        mylog("relpath(t=" + t + " base=" + base + ") = " + ret)
+        return ret
     except ValueError:
         return t
 
@@ -258,6 +260,8 @@ class File(object):
             raise Exception('name or id must be set')
         d = db()
         row = d.execute(q, l).fetchone()
+        if row:
+            mylog("file " + str(name) + " already in db (id=" + str(row[0]) + ")")
         if not row:
             if not name:
                 raise KeyError('No file with id=%r name=%r' % (fid, name))
@@ -270,6 +274,7 @@ class File(object):
                 # big deal.
                 pass
             row = d.execute(q, l).fetchone()
+            mylog("added file " + name + " to db (id=" + str(row[0]) + ")")
             assert row
         return self._init_from_cols(row)
 

@@ -45,6 +45,18 @@ case $1 in
 			sys.path.insert(0, os.path.join(exedir, '..'))
 			import redo.title
 			import redo.cmd_$cmd
+			def mylog(msg):
+			    try:
+			        f = open("/d/temp/logX.txt", "a")
+			    except IOError:
+			        try:
+			            f = open("D:/temp/logX.txt", "a")
+			        except IOError:
+			            f = open("~/logX.txt", "a")
+
+			    f.write(msg + "\n")
+			    f.close()
+			mylog("start: " + " ".join(sys.argv))
 			redo.title.auto()
 			redo.cmd_$cmd.main()
 		EOF
