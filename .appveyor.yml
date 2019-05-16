@@ -15,6 +15,12 @@ build_script:
     set PATH=C:\msys64\usr\bin;%PATH%;%cd%
 
     bash do install
+
+    set PATH=%PATH%;%cd%\inst\usr\bin
+
+    cd t
+
+    redo all
 - sh: ./do -j10 test
 artifacts:
 - path: inst/usr
