@@ -4,7 +4,7 @@ if [ "$1,$2" != "all,all" ]; then
 fi
 
 # Do this first, to ensure we're using a good shell
-case `uname -s` in
+case $(uname -s) in
     MSYS_NT*|MINGW64_NT*|CYGWIN_NT*|Windows_NT*)
         redo-ifchange redo/sh.exe
         ;;

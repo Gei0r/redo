@@ -1,6 +1,6 @@
 exec >&2
 
-case `uname -s` in
+case $(uname -s) in
 	MSYS_NT*|MINGW64_NT*|CYGWIN_NT*|Windows_NT*)
 		read -d '' fixwinpath <<-EOF || true
 

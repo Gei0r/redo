@@ -278,7 +278,7 @@ b" ] || exit 57
 [ "$t2" = "A
 b" ] || exit 58
 
-case `uname -s` in
+case $(uname -s) in
     MSYS_NT*|MINGW64_NT*|CYGWIN_NT*|Windows_NT*)
         # skip this test on windows
         ;;
@@ -520,7 +520,7 @@ x=$(printf "a%-5sc" "b")
 
 # Make sure cd supports -L and -P options properly
 rm -f shlink ../shlink
-case `uname -s` in
+case $(uname -s) in
     MSYS_NT*|MINGW64_NT*|CYGWIN_NT*|Windows_NT*)
         # On windows, symlinks are not supported out of the box.
         # Since we don't want to require enabling symlinks to build redo, we
