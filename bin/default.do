@@ -4,18 +4,25 @@ case $(uname -s) in
 	MSYS_NT*|MINGW64_NT*|CYGWIN_NT*|Windows_NT*)
 		read -d '' fixwinpath <<-EOF || true
 
-			# Some python version on windows (e.g. msys64/usr/bin/python2.7) think they
-			# run on posix, which means they work with unix-style paths (/c/windows/...).
-			# However, a shell might pass argv[0] windows-style (C:\windows\...), which
+			# Some python version on windows (e.g. \\
+			msys64/usr/bin/python2.7) think they
+			# run on posix, which means they work with unix-style\\
+			 paths (/c/windows/...).
+			# However, a shell might pass argv[0] windows-style \\
+			(C:\windows\...), which
 			# would completely confuse python.
-			# So we fix the path here. We could use the cygpath tool, but this is faster
-			if os.name == 'posix' and len(sys.argv[0]) >= 3 and sys.argv[0][1:3] == ':\\\\\\\':
-			    sys.argv[0] = "/" + sys.argv[0][0] + sys.argv[0][2:].replace("\\\\\\\", "/").replace("//", "/")
+			# So we fix the path here. We could use the cygpath \\
+			tool, but this is faster.
+			if os.name == 'posix' and len(sys.argv[0]) >= 3 and \\
+			sys.argv[0][1:3] == ':\\\\\\\':
+			    sys.argv[0] = "/" + sys.argv[0][0] + \\
+			sys.argv[0][2:].replace("\\\\\\\", "/")\\
+			.replace("//", "/")
 
 		EOF
-        ;;
-    *)
-        fixwinpath=""
+		;;
+	*)
+		fixwinpath=""
 esac
 
 case $1 in
@@ -26,7 +33,8 @@ case $1 in
 			d=\$(dirname "\$0")/..
 			[ -x \$d/lib/redo/sh ] && exec \$d/lib/redo/sh "\$@"
 			[ -x \$d/redo/sh ] && exec \$d/redo/sh "\$@"
-			echo "\$0: fatal: can't find \$d/lib/redo/sh or \$d/redo/sh" >&2
+			echo "\$0: fatal: can't find \$d/lib/redo/sh or \
+			    \$d/redo/sh" >&2
 			exit 98
 		EOF
 		chmod a+x "$3"
