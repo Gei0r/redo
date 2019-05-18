@@ -88,18 +88,18 @@ def which_win(name):
         name = name[0:-5]
 
     # search cwd ('.') first.
-    if os.access(name + ".exe", os.X_OK):
+    if os.access(name + ".exe", os.R_OK):
         return os.path.abspath(name + ".exe")
-    if os.access(name + ".bat", os.X_OK):
+    if os.access(name + ".bat", os.R_OK):
         return os.path.abspath(name + ".bat")
 
     # go through PATH to find $name.exe or $name.bat
     for p in os.environ['PATH'].split(os.pathsep):
         p = p.strip('"')  # Sometimes paths are surrounded by ""
 
-        if os.access(os.path.join(p, name + '.exe'), os.X_OK):
+        if os.access(os.path.join(p, name + '.exe'), os.R_OK):
             return os.path.join(p, name + '.exe')
-        if os.access(os.path.join(p, name + '.bat'), os.X_OK):
+        if os.access(os.path.join(p, name + '.bat'), os.R_OK):
             return os.path.join(p, name + '.bat')
 
     raise IOError('Could not find ' + name + ' in PATH')
