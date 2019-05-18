@@ -24,7 +24,7 @@ for sh in $SHELL_CANDIDATES ; do
 	# shells (like bash and zsh) only go into POSIX-compatible mode if
 	# they have that name.  If they're not in POSIX-compatible mode,
 	# they'll fail the test.
-	case `uname -s` in
+	case $(uname -s) in
 		MSYS_NT*|MINGW64_NT*|CYGWIN_NT*|Windows_NT*)
 			# Some windows environments need the .exe suffix
 			rm -f $1.new/sh.exe

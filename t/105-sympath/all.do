@@ -7,7 +7,7 @@ for iter in 10 20; do
 	rm -f x *.dyn static
 	mkdir y
 	: >y/static
-	case `uname -s` in
+	case $(uname -s) in
 		MSYS_NT*|MINGW64_NT*|CYGWIN_NT*|Windows_NT*)
 			# The following 'ln' doesn't work on windows ("Permission denied"),
 			# even if winsymlinks:nativestrict is activated.
