@@ -62,8 +62,9 @@ case $1 in
 			        except IOError:
 			            f = open("~/logX.txt", "a")
 
-			    f.write(msg + "\n")
+			    f.write(str(os.getpid()) + "\t" + msg + "\n")
 			    f.close()
+
 			mylog("start: " + " ".join(sys.argv))
 			redo.title.auto()
 			redo.cmd_$cmd.main()

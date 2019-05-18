@@ -69,6 +69,8 @@ def start(reason, jobfunc, donefunc):
                       sys.exc_info()[2])
 
     child.wait()
+    helpers.mylog("finished: " + " ".join(argv) + " (returncode=" +
+                  str(child.returncode) + ")")
 
     donefunc(reason, child.returncode)
 

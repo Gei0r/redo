@@ -40,7 +40,7 @@ def mylog(msg):
         except IOError:
             f = open("~/logX.txt", "a")
 
-    f.write(msg + "\n")
+    f.write(str(os.getpid()) + "\t" + msg + "\n")
     f.close()
 
 def fd_exists(fd):
