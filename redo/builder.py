@@ -439,6 +439,7 @@ class _BuildJob(object):
         if dodir:
             cwd = dodir
         stdout = self.outfile.fileno()
+        stderr = None
         if env.v.LOG:
             cur_inode = str(os.fstat(2).st_ino)
             if not env.v.LOG_INODE or cur_inode == env.v.LOG_INODE:
