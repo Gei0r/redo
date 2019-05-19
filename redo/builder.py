@@ -435,7 +435,7 @@ class _BuildJob(object):
             environ['REDO_XTRACE'] = '0'
         if env.v.VERBOSE == 1:
             environ['REDO_VERBOSE'] = '0'
-        cycles.add(self.lock.fid)
+        cycles.add(self.lock.fid, environ)
         if dodir:
             cwd = dodir
         stdout = self.outfile.fileno()

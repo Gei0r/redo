@@ -6,19 +6,23 @@ class CyclicDependencyError(Exception):
     pass
 
 
-def _get():
+def _get(env):
     """Get the list of held cycle items."""
-    return os.environ.get('REDO_CYCLES', '').split(':')
+    return env.get('REDO_CYCLES', '').split(':')
 
 
-def add(fid):
+def add(fid, env=None):
     """Add a lock to the list of held cycle items."""
-    items = set(_get())
+    if not env:
+        env = os.environ
+    items = set(_get(env))
     items.add(str(fid))
-    os.environ['REDO_CYCLES'] = ':'.join(list(items))
+    env['REDO_CYCLES'] = ':'.join(list(items))
 
 
-def check(fid):
-    if str(fid) in _get():
+def check(fid, env=None):
+    if not env:
+        env = os.environ
+    if str(fid) in _get(env):
         # Lock already held by parent: cyclic dependency
         raise CyclicDependencyError()
