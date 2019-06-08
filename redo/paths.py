@@ -2,6 +2,7 @@
 import os
 from . import env
 from .logs import debug2
+import helpers
 
 
 def _default_do_files(filename):
@@ -43,9 +44,12 @@ def find_do_file(f):
     for dodir, dofile, basedir, basename, ext in possible_do_files(f.name):
         dopath = os.path.join(dodir, dofile)
         debug2('%s: %s:%s ?\n' % (f.name, dodir, dofile))
+        helpers.mylog('checking if %s exists...' % (dopath))
         if os.path.exists(dopath):
+            helpers.mylog("  yes!")
             f.add_dep('m', dopath)
             return dodir, dofile, basedir, basename, ext
         else:
+            helpers.mylog("  no.")
             f.add_dep('c', dopath)
     return None, None, None, None, None
